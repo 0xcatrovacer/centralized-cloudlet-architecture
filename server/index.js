@@ -27,7 +27,7 @@ global.stats = {
 
 io.on("connection", (socket) => {
     console.log("Node", socket.id, "connected to Manager");
-    clients[socket.id] = {};
+    global.clients[socket.id] = {};
 })
 
 io.on("connection_error", (error) => {
