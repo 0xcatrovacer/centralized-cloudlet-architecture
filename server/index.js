@@ -27,7 +27,36 @@ global.stats = {
 
 io.on("connection", (socket) => {
     console.log("Node", socket.id, "connected to Manager");
-    global.clients[socket.id] = {};
+
+    socket.on("end_device_data_transfer", (data) => {
+        console.log("Received data packet", data.id, "of size", data.size, "from end device");
+        
+        global.queues.dataQueue.push(data)
+    })
+
+    socket.on("end_device_task_transfer", (data) => {
+        console.log("Received task", data.id ," of datasize", data.size, "with execution load", data.execution_load);
+
+        global.queues.taskQueue.push(data);
+    })
+
+    socket.on("disk_info", (data) => {
+        global.clients[socket.id] = {
+            disk_ratio: data.disk_ratio,
+            disk_load_status: data.disk_load_status,
+            cpu_ratio: data.cpu_ratio,
+            cpu_load_status: data.cpu_load_status,
+        }
+    });
+
+    socket.on("cpu_info", (data) => {
+        global.clients[socket.id] = {
+            disk_ratio: data.disk_ratio,
+            disk_load_status: data.disk_load_status,
+            cpu_ratio: data.cpu_ratio,
+            cpu_load_status: data.cpu_load_status,
+        }
+    });
 })
 
 io.on("connection_error", (error) => {
@@ -35,8 +64,6 @@ io.on("connection_error", (error) => {
 });
 
 setTimeout(() => {
-    console.log("done")
-
     io.close();
     process.exit();
-}, 5 * 1000);
+}, 60 * 1000);
