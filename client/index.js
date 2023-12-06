@@ -96,3 +96,7 @@ socket.on("connect", () => {
     console.log("Connected to Manager", socket.id);
     sendStorageStatusUpdate();
 });
+
+setInterval(() => {
+    sendStorageStatusUpdate();
+}, process.env.STORAGE_UPDATE_INTERVAL);
