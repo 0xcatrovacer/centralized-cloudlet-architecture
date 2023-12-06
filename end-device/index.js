@@ -4,12 +4,11 @@ const uuid = require('uuid');
 
 const SERVER = process.env.SERVER;
 const PORT = process.env.PORT
+const sim_env = process.env.SIMULATION_ENV;
 
 const socket = io(`${SERVER}:${PORT}`);
 
 const transferPackets = () => {
-    const sim_env = process.env.SIMULATION_ENV;
-
     if (sim_env === "DATA") {
         socket.emit("end_device_data_transfer", {
             id: uuid.v4(),
