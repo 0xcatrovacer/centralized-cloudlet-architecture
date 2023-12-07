@@ -13,12 +13,15 @@ const getLowestDiskUsageClient = () => {
     return lowUsageClients[0];
 }
 
-const transferDataPackets = (socket) => {
+const transferDataPackets = (io) => {
     let clients = global.clients;
     let dataQueue = global.queues.dataQueue;
-
     if (Object.keys(clients).length <= 0) {
-        console.log("No clients found");
+        console.log("No connected clients found. Transferring packet to cloud.");
+
+        global.stats.data.packetsTransferredToCloud += 1;
+        global.queues.dataQueue.shift();
+
         return;
     }
 
@@ -41,10 +44,8 @@ const transferDataPackets = (socket) => {
 
     console.log("Transferring data", dataPacket.id, "to", client.id);
 
-    socket.to(client.id).emit("node_data_transfer", dataPacket);
-    global.stats.data.packetsSentToNodes += 1;
-
-    global.queues.dataQueue = global.queues.dataQueue.filter((packet) => packet.id !== dataPacket.id);
+    io.to(client.id).emit("node_data_transfer", dataPacket);
+    global.queues.dataQueue.shift();
 }
 
 module.exports = {

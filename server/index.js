@@ -2,7 +2,7 @@ require("dotenv").config();
 const { Server } = require("socket.io");
 const { transferDataPackets } = require("./transfer_handler");
 
-const PORT = process.env.PORT
+const PORT = process.env.PORT;
 
 const io = new Server(PORT);
 
@@ -15,10 +15,12 @@ global.queues = {
 
 global.stats = {
     data: {
+        packetsReceivedFromEndDevice: 0,
         packetsSentToNodes: 0,
         packetsTransferredToCloud: 0
     },
-    task: {
+    cpu: {
+        tasksReceivedFromEndDevice: 0,
         tasksSentToNodes: 0,
         tasksTransferredToCloud: 0
     }
@@ -29,13 +31,11 @@ io.on("connection", (socket) => {
 
     socket.on("end_device_data_transfer", (data) => {
         console.log("Received data packet", data.id, "of size", data.size, "from end device");
-        
-        global.queues.dataQueue.push(data)
+        global.queues.dataQueue.push(data);
     })
 
     socket.on("end_device_task_transfer", (data) => {
         console.log("Received task", data.id ," of datasize", data.size, "with execution load", data.execution_load);
-
         global.queues.taskQueue.push(data);
     })
 
@@ -57,8 +57,18 @@ io.on("connection", (socket) => {
         }
     });
 
+    socket.on("data_received_acknowledge", (data) => {
+        if (data.received) {
+            console.log(`Received acknowledgement for ${data.data.id}`);
+            
+            global.stats.data.packetsSentToNodes += 1;
+        } else {
+            global.queues.dataQueue.push(data.data);
+        }
+    })
+
     setInterval(() => {
-        transferDataPackets(socket);
+        transferDataPackets(io);
     }, process.env.PACKET_TRANSFER_INTERVAL);
 });
 
@@ -68,6 +78,12 @@ io.on("connection_error", (error) => {
 });
 
 setTimeout(() => {
+    if (global.queues.dataQueue.length > 0) {
+        global.stats.data.packetsTransferredToCloud += global.queues.dataQueue.length;
+    }
+
+    global.stats.data.packetsReceivedFromEndDevice = global.stats.data.packetsTransferredToCloud + global.stats.data.packetsSentToNodes;
+
     console.log(global.stats);
     io.close();
     process.exit();

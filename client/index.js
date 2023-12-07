@@ -36,13 +36,18 @@ global.nodestats = {
     }
 }
 
+global.transferstats = {
+    dataPacketsReceived: 0,
+    tasksReceived: 0,
+}
+
 socket.on("connect", () => {
     console.log("Connected to Manager", socket.id);
     sendStorageStatusUpdate(socket);
 });
 
 socket.on("node_data_transfer", (data) => {
-    handleDataTransfers(data);
+    handleDataTransfers(data, socket);
 })
 
 setInterval(() => {
