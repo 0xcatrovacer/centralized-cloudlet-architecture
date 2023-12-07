@@ -12,13 +12,13 @@ const transferPackets = () => {
     if (sim_env === "DATA") {
         socket.emit("end_device_data_transfer", {
             id: uuid.v4(),
-            size: process.env.DATA_PACKET_SIZE,
+            size: parseInt(process.env.DATA_PACKET_SIZE),
         })
     } else if (sim_env === "TASK") {
         socket.emit("end_device_task_transfer", {
             id: uuid.v4(),
-            size: process.env.DATA_PACKET_SIZE,
-            execution_load: process.env.TASK_EXECUTION_LOAD
+            size: parseInt(process.env.DATA_PACKET_SIZE),
+            execution_load: parseInt(process.env.TASK_EXECUTION_LOAD)
         })
     }
 }
