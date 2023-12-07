@@ -12,6 +12,10 @@ const getLoadRatios = () => {
 }
 
 const sendStorageStatusUpdate = (socket) => {
+    if (!socket.id) {
+        return;
+    }
+
     let { disk_ratio, cpu_ratio } = getLoadRatios();
 
     let threshold0_disk = global.thresholds.threshold0_disk;
