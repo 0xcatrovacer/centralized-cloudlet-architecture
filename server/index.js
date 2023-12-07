@@ -1,5 +1,6 @@
 require("dotenv").config();
 const { Server } = require("socket.io");
+const { transferDataPackets } = require("./transfer_handler");
 
 const PORT = process.env.PORT
 
@@ -57,7 +58,12 @@ io.on("connection", (socket) => {
             cpu_load_status: data.cpu_load_status,
         }
     });
-})
+
+    setInterval(() => {
+        transferDataPackets(socket);
+    }, process.env.PACKET_TRANSFER_INTERVAL);
+});
+
 
 io.on("connection_error", (error) => {
   console.log(`Connection Error: ${error.message}`);
