@@ -16,12 +16,10 @@ global.queues = {
 global.stats = {
     data: {
         packetsSentToNodes: 0,
-        packetsRetainedByNodes: 0,
         packetsTransferredToCloud: 0
     },
     task: {
         tasksSentToNodes: 0,
-        tasksExecutedToNodes: 0,
         tasksTransferredToCloud: 0
     }
 }
@@ -70,6 +68,7 @@ io.on("connection_error", (error) => {
 });
 
 setTimeout(() => {
+    console.log(global.stats);
     io.close();
     process.exit();
 }, 60 * 1000);
