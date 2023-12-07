@@ -32,7 +32,6 @@ global.nodestats = {
     bandwidth: {
         current_bandwidth_load: 0,
         current_bandwidth_status: "LOW",
-        max_bandwidth_load: process.env.MAX_BANDWIDTH_LOAD,
     }
 }
 

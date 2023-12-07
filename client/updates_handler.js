@@ -23,6 +23,10 @@ const sendStorageStatusUpdate = (socket) => {
     let threshold0_cpu = global.thresholds.threshold0_cpu;
     let threshold1_cpu = global.thresholds.threshold1_cpu;
 
+    let disk_load_status;
+    let cpu_load_status;
+    let bandwidth_load_status;
+
     if (disk_ratio <= threshold0_disk) {
         disk_load_status = 'LOW';
     } else if (threshold0_disk < disk_ratio && disk_ratio <= threshold1_disk) {
@@ -43,11 +47,24 @@ const sendStorageStatusUpdate = (socket) => {
 
     global.nodestats.cpu.cpu_load_status = cpu_load_status;
 
+    let current_bandwidth_load = global.nodestats.bandwidth.current_bandwidth_load;
+
+    if (current_bandwidth_load <= 0) {
+        bandwidth_load_status = "LOW";
+    } else if (current_bandwidth_load <= 1) {
+        bandwidth_load_status = "MID";
+    } else {
+        bandwidth_load_status = "HIG";
+    }
+    
+    global.nodestats.bandwidth.current_bandwidth_status = bandwidth_load_status;
+
     const storageInfo = {
         disk_ratio,
         disk_load_status,
         cpu_ratio,
         cpu_load_status,
+        bandwidth_load_status,
     }
 
     if (global.simulationEnv === "DATA") {

@@ -3,7 +3,9 @@ const getLowestDiskUsageClient = () => {
     let lowUsageClients = [];
     
     Object.entries(clients).forEach(([key, client]) => {
-        if (client.disk_load_status === "LOW" || client.disk_load_status === "MID") {
+        if (
+            (client.disk_load_status === "LOW" || client.disk_load_status == "MID") && 
+            client.bandwidth_load_status === "LOW" ||  client.bandwidth_load_status === "MID") {
             lowUsageClients.push({id: key, ...client})
         }
     });

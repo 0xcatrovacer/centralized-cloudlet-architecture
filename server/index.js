@@ -45,6 +45,7 @@ io.on("connection", (socket) => {
             disk_load_status: data.disk_load_status,
             cpu_ratio: data.cpu_ratio,
             cpu_load_status: data.cpu_load_status,
+            bandwidth_load_status: data.bandwidth_load_status,
         }
     });
 
@@ -54,6 +55,7 @@ io.on("connection", (socket) => {
             disk_load_status: data.disk_load_status,
             cpu_ratio: data.cpu_ratio,
             cpu_load_status: data.cpu_load_status,
+            bandwidth_load_status: data.bandwidth_load_status,
         }
     });
 
