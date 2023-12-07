@@ -5,7 +5,7 @@ const getLowestDiskUsageClient = () => {
     Object.entries(clients).forEach(([key, client]) => {
         if (
             (client.disk_load_status === "LOW" || client.disk_load_status == "MID") && 
-            client.bandwidth_load_status === "LOW" ||  client.bandwidth_load_status === "MID") {
+            (client.bandwidth_load_status === "LOW" ||  client.bandwidth_load_status === "MID")) {
             lowUsageClients.push({id: key, ...client})
         }
     });
@@ -18,16 +18,17 @@ const getLowestDiskUsageClient = () => {
 const transferDataPackets = (io) => {
     let clients = global.clients;
     let dataQueue = global.queues.dataQueue;
+
+    if (dataQueue.length <= 0) {
+        return;
+    }
+
     if (Object.keys(clients).length <= 0) {
         console.log("No connected clients found. Transferring packet to cloud.");
 
         global.stats.data.packetsTransferredToCloud += 1;
         global.queues.dataQueue.shift();
 
-        return;
-    }
-
-    if (dataQueue.length <= 0) {
         return;
     }
 
@@ -50,6 +51,61 @@ const transferDataPackets = (io) => {
     global.queues.dataQueue.shift();
 }
 
+const getLowestCpuUsageClient = () => {
+    let clients = global.clients;
+    let lowUsageClients = [];
+    
+    Object.entries(clients).forEach(([key, client]) => {
+        if (
+            (client.cpu_load_status === "LOW" || client.cpu_load_status == "MID") && 
+            (client.disk_load_status === "LOW" || client.disk_load_status == "MID") && 
+            (client.bandwidth_load_status === "LOW" ||  client.bandwidth_load_status === "MID")) {
+            lowUsageClients.push({id: key, ...client})
+        }
+    });
+    
+    lowUsageClients.sort((a, b) => a.disk_ratio - b.disk_ratio);
+    
+    return lowUsageClients[0];
+}
+
+const transferTasks = (io) => {
+    let clients = global.clients;
+    let taskQueue = global.queues.taskQueue;
+
+    if (taskQueue.length <= 0) {
+        return;
+    }
+    
+    if (Object.keys(clients).length <= 0) {
+        console.log("No connected clients found. Transferring task to cloud.");
+
+        global.stats.task.tasksTransferredToCloud += 1;
+        global.queues.taskQueue.shift();
+
+        return;
+    }
+
+    const client = getLowestCpuUsageClient();
+
+    if (!client) {
+        console.log("No free clients found. Transferring task to cloud.");
+
+        global.stats.task.tasksTransferredToCloud += 1;
+        global.queues.taskQueue.shift();
+
+        return;
+    }
+
+    const task = taskQueue[0];
+
+    console.log("Transferring task", task.id, "to", client.id);
+
+    io.to(client.id).emit("node_task_transfer", task);
+    global.queues.taskQueue.shift();
+}
+
 module.exports = {
-    transferDataPackets
+    transferDataPackets,
+    transferTasks
 }

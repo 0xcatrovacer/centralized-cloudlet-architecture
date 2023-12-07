@@ -2,7 +2,7 @@ require("dotenv").config();
 const io = require("socket.io-client");
 
 const { sendStorageStatusUpdate } = require("./updates_handler");
-const { handleDataTransfers } = require("./transfer_handler");
+const { handleDataTransfers, handleTaskTransfers } = require("./transfer_handler");
 
 const SERVER = process.env.SERVER;
 const PORT = process.env.PORT
@@ -47,6 +47,10 @@ socket.on("connect", () => {
 
 socket.on("node_data_transfer", (data) => {
     handleDataTransfers(data, socket);
+})
+
+socket.on("node_task_transfer", (data) => {
+    handleTaskTransfers(data, socket);
 })
 
 setInterval(() => {

@@ -1,6 +1,6 @@
 require("dotenv").config();
 const { Server } = require("socket.io");
-const { transferDataPackets } = require("./transfer_handler");
+const { transferDataPackets, transferTasks } = require("./transfer_handler");
 
 const PORT = process.env.PORT;
 
@@ -19,7 +19,7 @@ global.stats = {
         packetsSentToNodes: 0,
         packetsTransferredToCloud: 0
     },
-    cpu: {
+    task: {
         tasksReceivedFromEndDevice: 0,
         tasksSentToNodes: 0,
         tasksTransferredToCloud: 0
@@ -35,7 +35,7 @@ io.on("connection", (socket) => {
     })
 
     socket.on("end_device_task_transfer", (data) => {
-        console.log("Received task", data.id ," of datasize", data.size, "with execution load", data.execution_load);
+        console.log("Received task", data.id ," of datasize", data.size, "with execution load", data.execution_load, "and execution time", data.execution_time);
         global.queues.taskQueue.push(data);
     })
 
@@ -64,15 +64,22 @@ io.on("connection", (socket) => {
             console.log(`Received acknowledgement for ${data.data.id}`);
             
             global.stats.data.packetsSentToNodes += 1;
-        } else {
-            global.queues.dataQueue.push(data.data);
         }
     })
 
-    setInterval(() => {
-        transferDataPackets(io);
-    }, process.env.PACKET_TRANSFER_INTERVAL);
+    socket.on("task_received_acknowledge", (data) => {
+        if (data.received) {
+            console.log(`Received acknowledgement for ${data.data.id}`);
+            
+            global.stats.task.tasksSentToNodes += 1;
+        }
+    })
 });
+
+setInterval(() => {
+    transferDataPackets(io);
+    transferTasks(io);
+}, process.env.PACKET_TRANSFER_INTERVAL);
 
 
 io.on("connection_error", (error) => {
@@ -83,8 +90,12 @@ setTimeout(() => {
     if (global.queues.dataQueue.length > 0) {
         global.stats.data.packetsTransferredToCloud += global.queues.dataQueue.length;
     }
-
     global.stats.data.packetsReceivedFromEndDevice = global.stats.data.packetsTransferredToCloud + global.stats.data.packetsSentToNodes;
+
+    if (global.queues.taskQueue.length > 0) {
+        global.stats.task.tasksTransferredToCloud += global.queues.taskQueue.length;
+    }
+    global.stats.task.tasksReceivedFromEndDevice = global.stats.task.tasksTransferredToCloud + global.stats.task.tasksSentToNodes;
 
     console.log(global.stats);
     io.close();
