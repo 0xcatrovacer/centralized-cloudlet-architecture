@@ -51,7 +51,7 @@ const transferDataPackets = (io) => {
     global.queues.dataQueue.shift();
 }
 
-const getLowestCpuUsageClient = () => {
+const getLowestCpuUsageClient = (execution_load) => {
     let clients = global.clients;
     let lowUsageClients = [];
     
@@ -59,7 +59,8 @@ const getLowestCpuUsageClient = () => {
         if (
             (client.cpu_load_status === "LOW" || client.cpu_load_status == "MID") && 
             (client.disk_load_status === "LOW" || client.disk_load_status == "MID") && 
-            (client.bandwidth_load_status === "LOW" ||  client.bandwidth_load_status === "MID")) {
+            (client.bandwidth_load_status === "LOW" ||  client.bandwidth_load_status === "MID") &&
+            (client.cpu_ratio * 100 + execution_load <= 90)) {
             lowUsageClients.push({id: key, ...client})
         }
     });
@@ -76,7 +77,7 @@ const transferTasks = (io) => {
     if (taskQueue.length <= 0) {
         return;
     }
-    
+
     if (Object.keys(clients).length <= 0) {
         console.log("No connected clients found. Transferring task to cloud.");
 
@@ -86,7 +87,9 @@ const transferTasks = (io) => {
         return;
     }
 
-    const client = getLowestCpuUsageClient();
+    const task = taskQueue[0];
+
+    const client = getLowestCpuUsageClient(task.execution_load);
 
     if (!client) {
         console.log("No free clients found. Transferring task to cloud.");
@@ -96,8 +99,6 @@ const transferTasks = (io) => {
 
         return;
     }
-
-    const task = taskQueue[0];
 
     console.log("Transferring task", task.id, "to", client.id);
 

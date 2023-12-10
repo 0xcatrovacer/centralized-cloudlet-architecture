@@ -18,14 +18,12 @@ const handleDataTransfers = (data, socket) => {
         data: data
     }
     
-    setTimeout(() => {
-        socket.emit("data_received_acknowledge", ack);
-        global.nodestats.bandwidth.current_bandwidth_load -= 1;
-    }, process.env.BANDWIDTH_FREE_DATA_DELAY);
+    socket.emit("data_received_acknowledge", ack);
+    global.nodestats.bandwidth.current_bandwidth_load -= 1;
 }
 
 const handleTaskTransfers = (data, socket) => {
-    console.log("Received task", data.id, "of size", data.size, "and execution load", data.execution_load, "with execution time", data.execution_time);
+    console.log("Received task", data.id, "of size", data.size, "and execution load", data.execution_load,"% with execution time", data.execution_time,"ms");
     global.nodestats.bandwidth.current_bandwidth_load += 1;
 
     global.nodestats.disk.current_disk_load += data.size;
@@ -51,7 +49,7 @@ const handleTaskTransfers = (data, socket) => {
         socket.emit("task_received_acknowledge", ack);
         global.nodestats.bandwidth.current_bandwidth_load -= 1;
         global.nodestats.cpu.current_cpu_load -= data.execution_load;
-    }, data.execution_time * 1000);
+    }, data.execution_time);
 }
 
 module.exports = {

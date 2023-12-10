@@ -49,9 +49,9 @@ const sendStorageStatusUpdate = (socket) => {
 
     let current_bandwidth_load = global.nodestats.bandwidth.current_bandwidth_load;
 
-    if (current_bandwidth_load <= 0) {
+    if (current_bandwidth_load <= 3) {
         bandwidth_load_status = "LOW";
-    } else if (current_bandwidth_load <= 1) {
+    } else if (current_bandwidth_load <= 6) {
         bandwidth_load_status = "MID";
     } else {
         bandwidth_load_status = "HIG";

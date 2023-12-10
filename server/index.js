@@ -35,7 +35,7 @@ io.on("connection", (socket) => {
     })
 
     socket.on("end_device_task_transfer", (data) => {
-        console.log("Received task", data.id ," of datasize", data.size, "with execution load", data.execution_load, "and execution time", data.execution_time);
+        console.log("Received task", data.id ," of datasize", data.size, "with execution load", data.execution_load,"% and execution time", data.execution_time,"ms");
         global.queues.taskQueue.push(data);
     })
 

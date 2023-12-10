@@ -15,16 +15,17 @@ const transferPackets = () => {
             size: parseInt(process.env.DATA_PACKET_SIZE),
         })
     } else if (sim_env === "TASK") {
-        let max = 15;
-        let min = 5;
-        
-        let execution_time = Math.floor(Math.random() * ((max - min) + 1) + min);
+        let max = 8;
+        let min = 1;
+
+        let execution_load = Math.floor(Math.random() * ((max - min) + 1) + min) * 10;
+        let execution_time = execution_load;
 
         socket.emit("end_device_task_transfer", {
             id: uuid.v4(),
             size: parseInt(process.env.DATA_PACKET_SIZE),
-            execution_load: parseInt(process.env.TASK_EXECUTION_LOAD),
-            execution_time
+            execution_load: execution_load,
+            execution_time: execution_time,
         })
     }
 }
