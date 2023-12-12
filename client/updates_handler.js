@@ -67,15 +67,10 @@ const sendStorageStatusUpdate = (socket) => {
         bandwidth_load_status,
     }
 
-    if (global.simulationEnv === "DATA") {
-        socket.emit('disk_info', {
-            ...storageInfo,
-        })
-    } else if (global.simulationEnv === "TASK") {
-        socket.emit('cpu_info', {
-            ...storageInfo,
-        })
-    }
+    socket.emit('update_info', {
+        ...storageInfo,
+    })
+    
 }
 
 module.exports = {
