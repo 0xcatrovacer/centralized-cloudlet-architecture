@@ -39,17 +39,7 @@ io.on("connection", (socket) => {
         global.queues.taskQueue.push(data);
     })
 
-    socket.on("disk_info", (data) => {
-        global.clients[socket.id] = {
-            disk_ratio: data.disk_ratio,
-            disk_load_status: data.disk_load_status,
-            cpu_ratio: data.cpu_ratio,
-            cpu_load_status: data.cpu_load_status,
-            bandwidth_load_status: data.bandwidth_load_status,
-        }
-    });
-
-    socket.on("cpu_info", (data) => {
+    socket.on("update_info", (data) => {
         global.clients[socket.id] = {
             disk_ratio: data.disk_ratio,
             disk_load_status: data.disk_load_status,
