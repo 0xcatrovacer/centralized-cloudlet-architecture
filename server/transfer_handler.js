@@ -51,6 +51,7 @@ const transferDataPackets = (io) => {
     global.queues.dataQueue.shift();
 }
 
+// Get nodes sorted in highest cpu availability
 const getLowestCpuUsageClient = (execution_load) => {
     let clients = global.clients;
     let lowUsageClients = [];
@@ -70,6 +71,7 @@ const getLowestCpuUsageClient = (execution_load) => {
     return lowUsageClients[0];
 }
 
+// Migrate task to node
 const transferTasks = (io) => {
     let clients = global.clients;
     let taskQueue = global.queues.taskQueue;
@@ -78,6 +80,7 @@ const transferTasks = (io) => {
         return;
     }
 
+    // Migrate task to cloud
     if (Object.keys(clients).length <= 0) {
         console.log("No connected clients found. Transferring task to cloud.");
 
@@ -91,6 +94,7 @@ const transferTasks = (io) => {
 
     const client = getLowestCpuUsageClient(task.execution_load);
 
+    // Migrate task to cloud
     if (!client) {
         console.log("No free clients found. Transferring task to cloud.");
 

@@ -29,11 +29,13 @@ global.stats = {
 io.on("connection", (socket) => {
     console.log("Node", socket.id, "connected to Manager");
 
+    // Data Queue enqueuing after receiving data packet
     socket.on("end_device_data_transfer", (data) => {
         console.log("Received data packet", data.id, "of size", data.size, "from end device");
         global.queues.dataQueue.push(data);
     })
 
+    // Task Queue enqueuing after receiving task packet
     socket.on("end_device_task_transfer", (data) => {
         console.log("Received task", data.id ," of datasize", data.size, "with execution load", data.execution_load,"% and execution time", data.execution_time,"ms");
         global.queues.taskQueue.push(data);
