@@ -66,7 +66,7 @@ const getLowestCpuUsageClient = (execution_load) => {
         }
     });
     
-    lowUsageClients.sort((a, b) => a.disk_ratio - b.disk_ratio);
+    lowUsageClients.sort((a, b) => a.cpu_ratio - b.cpu_ratio);
     
     return lowUsageClients[0];
 }
